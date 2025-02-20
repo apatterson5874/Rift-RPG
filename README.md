@@ -13,3 +13,6 @@ A Java based text rpg
 - Unique Item System
 - Special Ability Mechanics
 - Unique Boss Abilities
+
+## Misc.
+- UML Diagram can be viewed with PlantUML
