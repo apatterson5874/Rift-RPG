@@ -1,6 +1,10 @@
 # RIFT RPG
-A Java based text rpg
+A Java text rpg
 
+## Version 0.2 Added Features
+- Inventory System
+- Unique Item System
+---
 ## Version 0.1 Features
 - Full XP System
 - Random Encounter System
@@ -10,7 +14,7 @@ A Java based text rpg
 ---
 ## Planned Updates
 - Enhanced Encounter System
-- Unique Item System
+- ~~Unique Item System~~
 - Special Ability Mechanics
 - Unique Boss Abilities
 

@@ -201,6 +201,10 @@ public class GameLogic {
         //Player xp and gold
         System.out.println("XP: " + player.xp + "\tGold: " + player.gold);
         printSeparator(20);
+        //equipment
+        System.out.println("EQUIPMENT:");
+        System.out.println(player.getEquipmentString());
+        printSeparator(20);
         //# of pots
         System.out.println("# of Potions: " + player.pots);
         printSeparator(20);
@@ -219,24 +223,37 @@ public class GameLogic {
     //shopping / encountering a travelling trader
     public static void shop(){
         clearConsole();
-        printHeading("You meet a mysterious stranger. \nHe offers you something:");
-        int price = (int) (Math.random()*(10 + player.pots*3) + 10 + player.pots);
-        System.out.println("- Magic Potion: " + price + " gold");
-        printSeparator(20);
-        //ask player to buy one
-        System.out.println("Do you want to buy one?\n(1) Yes\n(2) No");
-        int input = readInt("-> ", 2);
-        //check if player wants to buy
-        if(input == 1){
-            clearConsole();
-            //check if player has enough gold
-            if(player.gold >= price){
-                printHeading("You bought a magical potion for " + price + " gold");
-                player.pots++;
-                player.gold -= price;
-            }else
-                printHeading("You don't have enough gold to buy this...");
-            anythingToContinue();
+        printHeading("SHOP");
+
+        //Get selection of items to sell
+        Item[] shopItems = Item.createCommonItems();
+        //Show only a few random items
+        int numItems = Math.min(30, shopItems.length);
+
+        for(int i = 0; i < numItems; i++){
+            Item item = shopItems[i];
+            System.out.println((i+1) + ") " + item.name + " - " + item.value + " gold");
+            //print item stats
+            if(item.atkBonus > 0)
+                System.out.println("    Attack: +" + item.atkBonus);
+            if(item.defBonus > 0)
+                System.out.println("    Defense: +" + item.defBonus);
+            if(item.hpBonus > 0)
+                System.out.println("    HP: +" + item.hpBonus);
+        }
+
+        System.out.println((numItems + 1) + ") ");
+
+        int input = readInt("-> ", numItems + 1);
+        if(input != numItems + 1) {
+            Item selectedItem = shopItems[input - 1];
+            if(player.gold >= selectedItem.value){
+                player.gold -= selectedItem.value;
+                player.inventory.add(selectedItem);
+                printHeading("You bought " + selectedItem.value);
+            }else{
+                printHeading("Not enough gold");
+            }
         }
     }
 
@@ -323,7 +340,7 @@ public class GameLogic {
                     System.out.println("You earned " + enemy.xp + " XP");
                     //random drops
                     boolean addRest = (Math.random()*5 + 1 <= 2.25);
-                    int goldEarned = (int) (Math.random()*enemy.xp);
+                    int goldEarned = (int) ((Math.random()*enemy.xp) + (Math.random()*5));
                     if(addRest){
                         player.restsLeft++;
                         System.out.println("You earned a chance to rest");
@@ -391,7 +408,41 @@ public class GameLogic {
         printSeparator(20);
         System.out.println("(1) Continue on your journey");
         System.out.println("(2) Character Info");
-        System.out.println("(3) Exit Game");
+        System.out.println("(3) Inventory");
+        System.out.println("(4) Exit Game");
+    }
+
+    public static void manageInventory(){
+        clearConsole();
+        printHeading("INVENTORY");
+
+        if(player.inventory.isEmpty()){
+            System.out.println("Your inventory is empty");
+            anythingToContinue();
+            return;
+        }
+
+        for(int i = 0; i < player.inventory.size(); i++){
+            Item item = player.inventory.get(i);
+            System.out.println((i+1) + ") " + item.name);
+            if(item.atkBonus > 0)
+                System.out.println("    Attack: +" + item.atkBonus);
+            if(item.defBonus > 0)
+                System.out.println("    Defense: +" + item.defBonus);
+            if(item.hpBonus > 0)
+                System.out.println("    HP: +" + item.hpBonus);
+        }
+
+        System.out.println((player.inventory.size() + 1) + ") ");
+
+        int input = readInt("-> ", player.inventory.size() + 1);
+        if(input != player.inventory.size() + 1){
+            Item selectedItem = player.inventory.get(input - 1);
+            player.equipItem(selectedItem);
+            player.inventory.remove(input - 1);
+            printHeading("You equipped " + selectedItem.name);
+            anythingToContinue();
+        }
     }
 
     //final battle of the game
@@ -416,11 +467,13 @@ public class GameLogic {
     public static void gameLoop(){
         while(isRunning){
             printMenu();
-            int input = readInt("-> ", 3);
+            int input = readInt("-> ", 4);
             if(input == 1)
                 continueJourney();
             else if(input == 2)
                 characterInfo();
+            else if (input == 3)
+                manageInventory();
             else
                 isRunning = false;
         }

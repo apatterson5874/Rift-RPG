@@ -22,10 +22,17 @@ class Player{
     gold: int
     restsLeft: int
     pots: int
+    - weapon: item
+    - armor: item
+    - accessory: item
+    + inventory: ArrayList<Item>
     + Player(String)
     + chooseTrait(): void
     + attack(): int
     + defend(): int
+    + getEquipmentHpBonus(): int
+    + equipItem(Item): void
+    + getEquipmentString(): String
 }
 
 class Enemy{
@@ -70,17 +77,32 @@ class GameLogic{
     + {static} randomBattle(): void
     + {static} battle(Enemy): void
     + {static} printMenu(): void
+    + {static} manageInventory(): void
     + {static} finalBattle(): void
     + {static} playerDied(): void
     + {static} gameLoop(): void
 }
+
+class Item{
+    + name: String
+    + type: String
+    + atkBonus: int
+    + defBonus: int
+    + hpBonus: int
+    + value: int
+    + Item(String, String, int, int, int, int)
+    + {static} createCommonItems(): Item[]
+}
+
 
 Character <|-- Player
 Character <|-- Enemy
 GameLogic --> Player : manages
 GameLogic --> Enemy : creates
 GameLogic --> Story : calls methods
+GameLogic --> Item
 Story --> Player : references
 Main --> GameLogic : calls methods
+
 
 @enduml
