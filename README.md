@@ -1,7 +1,7 @@
 # RIFT RPG
 A Java based text rpg
 
-## Version 1.0 Features
+## Version 0.1 Features
 - Full XP System
 - Random Encounter System
 - Fight System
