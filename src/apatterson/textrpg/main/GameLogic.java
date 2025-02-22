@@ -9,7 +9,7 @@ public class GameLogic {
     public static boolean isRunning;
 
     //random encounters
-    public static String[] encounters = {"Battle", "Battle", "Battle", "Rest", "Rest"};
+    public static String[] encounters = {"Battle", "Battle", "Battle", "Battle", "Rest"};
 
     //enemy names
     public static String[] enemies = {"Savage", "Savage", "Corrupted", "Corrupted", "Elemental", "Elemental"};
@@ -130,8 +130,8 @@ public class GameLogic {
             encounters[0] = "Battle";
             encounters[1] = "Battle";
             encounters[2] = "Battle";
-            encounters[3] = "Rest";
-            encounters[4] = "Shop";
+            encounters[3] = "Battle";
+            encounters[4] = "Rest";
             //fully heal player
             player.hp = player.maxHp;
         }else if(player.xp >= 50 && act == 2){
@@ -150,8 +150,8 @@ public class GameLogic {
             encounters[0] = "Battle";
             encounters[1] = "Battle";
             encounters[2] = "Battle";
-            encounters[3] = "Rest";
-            encounters[4] = "Shop";
+            encounters[3] = "Battle";
+            encounters[4] = "Rest";
 
             player.hp = player.maxHp;
         }else if(player.xp >= 100 && act == 3){
@@ -224,6 +224,9 @@ public class GameLogic {
     public static void shop(){
         clearConsole();
         printHeading("SHOP");
+        printSeparator(20);
+        System.out.println("Gold: " + player.gold);
+        printSeparator(20);
 
         //Get selection of items to sell
         Item[] shopItems = Item.createCommonItems();
@@ -242,7 +245,7 @@ public class GameLogic {
                 System.out.println("    HP: +" + item.hpBonus);
         }
 
-        System.out.println((numItems + 1) + ") ");
+        System.out.println((numItems + 1) + ") EXIT");
 
         int input = readInt("-> ", numItems + 1);
         if(input != numItems + 1) {
@@ -409,7 +412,8 @@ public class GameLogic {
         System.out.println("(1) Continue on your journey");
         System.out.println("(2) Character Info");
         System.out.println("(3) Inventory");
-        System.out.println("(4) Exit Game");
+        System.out.println("(4) Shop");
+        System.out.println("(5) Exit Game");
     }
 
     public static void manageInventory(){
@@ -467,13 +471,15 @@ public class GameLogic {
     public static void gameLoop(){
         while(isRunning){
             printMenu();
-            int input = readInt("-> ", 4);
+            int input = readInt("-> ", 5);
             if(input == 1)
                 continueJourney();
             else if(input == 2)
                 characterInfo();
             else if (input == 3)
                 manageInventory();
+            else if (input == 4)
+                shop();
             else
                 isRunning = false;
         }

@@ -56,7 +56,7 @@ public class Player extends Character{
             equipmentBonus += armor.atkBonus;
         if(accessory != null)
             equipmentBonus += accessory.atkBonus;
-        return (int) (Math.random()*(xp/4 + numAtkUpgrades*3 + 3) + xp/10 + numAtkUpgrades*2 + numDefUpgrades + 1 + equipmentBonus);
+        return (int) (Math.random()*(xp/5 + numAtkUpgrades*2 + 3) + xp/10 + equipmentBonus);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class Player extends Character{
             equipmentBonus += armor.defBonus;
         if(accessory != null)
             equipmentBonus += accessory.defBonus;
-        return (int) (Math.random()*(xp/4 + numDefUpgrades*3 + 3) + xp/10 + numDefUpgrades*2 + numAtkUpgrades + 1 + equipmentBonus);
+        return (int) (Math.random()*(xp/4 + numDefUpgrades*3) + xp/10  + equipmentBonus);
     }
 
     //get total hp bonus from equipment
@@ -117,11 +117,9 @@ public class Player extends Character{
 
     //method to get currently equipped items for display
     public String getEquipmentString(){
-        StringBuilder sb = new StringBuilder();
-        sb.append("Weapon: ").append(weapon != null ? weapon.name : "None").append("\n");
-        sb.append("Armor: ").append(armor != null ? armor.name : "None").append("\n");
-        sb.append("Accessory: ").append(accessory != null ? accessory.name : "None").append("\n");
-        return sb.toString();
+        return "Weapon: " + (weapon != null ? weapon.name : "None") + "\n" +
+                "Armor: " + (armor != null ? armor.name : "None") + "\n" +
+                "Accessory: " + (accessory != null ? accessory.name : "None") + "\n";
     }
 
     //let the player choose a trait of either skill path

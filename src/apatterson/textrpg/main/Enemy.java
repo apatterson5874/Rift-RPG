@@ -17,11 +17,27 @@ public class Enemy extends Character{
     //Enemy specific attack and defense calculations
     @Override
     public int attack() {
-        return (int) (Math.random()*(playerXp/4 + 1) + xp/4 + 3);
+        if(GameLogic.act == 1)
+            return (int) (Math.random()*(playerXp/4 + 1) + xp/4 + 3);
+        if(GameLogic.act == 2)
+            return (int) (Math.random()*(playerXp/4 + 1) + xp/2 + 3);
+        if(GameLogic.act == 3)
+            return (int) (Math.random()*(playerXp/2 + 1) + xp + 3);
+        else {
+            return (int) (Math.random()*(playerXp/2 + 1) + xp);
+        }
     }
 
     @Override
     public int defend() {
-        return (int) (Math.random()*(playerXp/4 + 1));
+        if(GameLogic.act == 1)
+            return (int) (Math.random()*(playerXp/4 + 1));
+        if(GameLogic.act == 2)
+            return (int) (Math.random()*(playerXp/2 + 3));
+        if(GameLogic.act == 3)
+            return (int) (Math.random()*(playerXp/2 + 5));
+        else {
+            return (int) (Math.random()*(playerXp + 9));
+        }
     }
 }
