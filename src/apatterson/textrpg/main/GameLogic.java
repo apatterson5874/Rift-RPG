@@ -91,11 +91,50 @@ public class GameLogic {
                 nameSet = true;
         }while(!nameSet);
 
+        //class selection
+        boolean classSelected = false;
+        PlayerClass playerClass = null;
+
+        do {
+            clearConsole();
+            printHeading("Choose your class:");
+            System.out.println("(1) Warrior - Strong physical attacks and high defense");
+            System.out.println("(2) Mage - Powerful spells and high mana");
+            System.out.println("(3) Rogue - Critical strikes and evasion");
+            System.out.println("(4) Cleric - Healing and holy magic");
+
+            int input = readInt("-> ", 4);
+
+            switch (input) {
+                case 1:
+                    playerClass = PlayerClass.WARRIOR;
+                    break;
+                case 2:
+                    playerClass = PlayerClass.MAGE;
+                    break;
+                case 3:
+                    playerClass = PlayerClass.ROGUE;
+                    break;
+                case 4:
+                    playerClass = PlayerClass.CLERIC;
+                    break;
+            }
+
+            clearConsole();
+            printHeading("You selected " + playerClass + ". Is that correct?");
+            printSeparator(20);
+            System.out.println("(1) Yes");
+            System.out.println("(2) No I want to choose again");
+            input = readInt("-> ", 2);
+            if (input == 1)
+                classSelected = true;
+        } while(!classSelected);
+
         //print story intro
         Story.printIntro();
 
         //create new player object with the name
-        player = new Player(name);
+        player = new Player(name, playerClass);
 
         //print first story act intro
         Story.printFirstActIntro();
@@ -299,79 +338,127 @@ public class GameLogic {
         //main battle loop
         while(true){
             clearConsole();
+
+            if(enemy.hp <= 0){
+                printHeading("You defeated the " + enemy.name + "!");
+                int xpEarned = enemy.xp/4 + 1;
+                int goldEarned = enemy.xp/6 + 3;
+
+                System.out.println("You earned " + goldEarned + " gold");
+                System.out.println("You earned " + xpEarned + " xp");
+                player.xp += xpEarned;
+                player.gold += goldEarned;
+
+                anythingToContinue();
+                break;
+            }
+            if(player.hp <= 0){
+                playerDied();
+                break;
+            }
+
             printHeading(enemy.name + "\nHP: " + enemy.hp + "/" + enemy.maxHp);
-            printHeading(player.name + "\nHP: " + player.hp + "/" + player.maxHp);
+            printHeading(player.name + "\nHP: " + player.hp + "/" + player.maxHp + "\nMana: " + player.mana + "/" + player.maxMana +
+                    "\nMana Shield: " + player.manaShield + "/" + player.maxManaShield);
             System.out.println("Choose an action:");
             printSeparator(20);
-            System.out.println("(1) Fight\n(2) Use Potion\n(3) Run Away");
-            int input = readInt("-> ", 3);
+
+            // Calculate the total number of options
+            int totalOptions = 2; // Start with basic attack + abilities
+            totalOptions += player.abilities.size(); // Add number of abilities
+
+            // Display options
+            System.out.println("(1) Basic Attack");
+
+            // Show class abilities
+            for(int i = 0; i < player.abilities.size(); i++){
+                Ability ability = player.abilities.get(i);
+                System.out.println("(" + (i + 2) + ") " + ability.getName() +
+                        " (Mana: " + ability.getManaCost() + ") - " +
+                        ability.getDescription());
+            }
+
+            // Add potion and run options
+            System.out.println("(" + (totalOptions) + ") Use Potion (" + player.pots + " remaining)");
+            System.out.println("(" + (totalOptions + 1) + ") Run Away");
+
+            int input = readInt("-> ", totalOptions + 1);
 
             //react to player input
             if(input == 1){
-                //fight
-                //calculate dmg and dmgTook (dmg enemy deals to player)
+                //basic attack
                 int dmg = player.attack() - enemy.defend();
                 int dmgTook = enemy.attack() - player.defend();
-                //check that dmg and dmgTook isn't negative
-                if(dmgTook < 0){
-                    dmg -= dmgTook/2;
-                    dmgTook = 0;
-                }
-                if(dmg < 0)
-                    dmg = 0;
-                //deal dmg to both parties
-                player.hp -= dmgTook;
-                enemy.hp -= dmg;
 
-                //print info of this battle round
+                //apply damage
+                enemy.hp -= Math.max(1, dmg);
+                if(player.manaShield > 0) {
+                    player.manaShield -= Math.max(1, dmgTook);
+                } else {
+                    player.hp -= Math.max(1, dmgTook);
+                }
+
+                //display results
                 clearConsole();
                 printHeading("BATTLE");
-                System.out.println("You dealt " + dmg + " damage to the " + enemy.name);
-                printSeparator(15);
-                System.out.println("The " + enemy.name + " dealt " + dmgTook + " damage to you");
+                System.out.println("You dealt " + dmg + " damage!");
+                System.out.println("You took " + dmgTook + " damage!");
                 anythingToContinue();
-                //check if player is still alive or dead
-                if(player.hp <= 0){
-                    playerDied();
-                    break;
-                }else if(enemy.hp <= 0){
-                    //tell the player they won
-                    clearConsole();
-                    printHeading("You defeated the " + enemy.name);
-                    //increase player xp
-                    player.xp += enemy.xp;
-                    System.out.println("You earned " + enemy.xp + " XP");
-                    //random drops
-                    boolean addRest = (Math.random()*5 + 1 <= 2.25);
-                    int goldEarned = (int) ((Math.random()*enemy.xp) + (Math.random()*5));
-                    if(addRest){
-                        player.restsLeft++;
-                        System.out.println("You earned a chance to rest");
-                    }
-                    if(goldEarned > 0){
-                        player.gold += goldEarned;
-                        System.out.println("You collected " + goldEarned + " gold from the " + enemy.name);
-                    }
-                    anythingToContinue();
-                    break;
-                }
 
-            }else if(input == 2){
-                //use potion
-                clearConsole();
-                if(player.pots > 0 && player.hp < player.maxHp){
-                    //make sure player wants to take a potion
-                    printHeading("Do you want to drink a potion? (" + player.pots + "left)");
-                    System.out.println("(1) Yest\n(2) No");
-                    input = readInt("-> ", 2);
-                    if(input == 1){
-                        player.hp = player.maxHp;
-                        clearConsole();
-                        printHeading("You took a potion. HP restored to " + player.maxHp);
-                        anythingToContinue();
+            }else if(input <= player.abilities.size() + 1){
+                // Use ability
+                Ability selectedAbility = player.abilities.get(input - 2);
+
+                if(player.mana >= selectedAbility.getManaCost()) {
+                    player.mana -= selectedAbility.getManaCost();
+
+                    // Execute ability and get damage dealt
+                    int damageDealt = selectedAbility.execute(player, enemy);
+
+                    // Enemy still gets their attack
+                    int dmgTook = enemy.attack() - player.defend();
+
+                    if(player.manaShield > 0) {
+                        player.manaShield -= Math.max(1, dmgTook);
+                    } else {
+                        player.hp -= Math.max(1, dmgTook);
                     }
+                    clearConsole();
+                    printHeading("BATTLE");
+                    System.out.println("You used " + selectedAbility.getName() + "!");
+                    System.out.println("You dealt " + damageDealt + " damage!");
+
+                    // Special message for Cleric's healing
+                    if(player.playerClass == PlayerClass.CLERIC && selectedAbility.getName().equals("Smite")) {
+                        System.out.println("You healed for " + (damageDealt/2) + " HP!");
+                    }
+
+                    System.out.println("You took " + dmgTook + " damage!");
+                    anythingToContinue();
+                } else {
+                    clearConsole();
+                    printHeading("Not enough mana!");
+                    anythingToContinue();
+                }
+            }else if(input == totalOptions){
+                // Use potion
+                if(player.pots > 0){
+                    player.hp += 30; // Heal amount
+                    if(player.hp > player.maxHp)
+                        player.hp = player.maxHp;
+                    player.pots--;
+
+                    // Enemy still gets their attack
+                    int dmgTook = enemy.attack() - player.defend();
+                    player.hp -= Math.max(1, dmgTook);
+
+                    clearConsole();
+                    printHeading("You used a potion and restored health!");
+                    System.out.println("You took " + dmgTook + " damage!");
+                    anythingToContinue();
                 }else{
-                    printHeading("You don't have any potions or you're at full health");
+                    clearConsole();
+                    printHeading("No potions remaining!");
                     anythingToContinue();
                 }
             }else{
@@ -388,11 +475,13 @@ public class GameLogic {
                         printHeading("You didn't manage to escape");
                         //calculate damage player takes
                         int dmgTook = enemy.attack();
+                        player.hp -= dmgTook;
                         System.out.println("You took " + dmgTook + " damage");
                         anythingToContinue();
                         //check if player is still alive
                         if(player.hp <= 0){
                             playerDied();
+                            break;
                         }
                     }
                 }else{

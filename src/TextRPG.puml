@@ -5,7 +5,12 @@ abstract class Character{
     + maxHp: int
     + hp: int
     + xp: int
-    + Character(name, maxHp, xp)
+    # maxMana: int
+    # mana: int
+    # maxManaShield: int
+    # manaShield: int
+    # abilities: ArrayList<Ability>
+    + Character(name, maxHp, xp, maxMana, maxManaShield)
     + {abstract} attack(): int
     + {abstract} defend(): int
 }
@@ -26,13 +31,26 @@ class Player{
     - armor: item
     - accessory: item
     + inventory: ArrayList<Item>
-    + Player(String)
+    + playerClass: PlayerClass
+    - strength: int
+    - intelligence: int
+    - dexterity: int
+    - constitution: int
+    + Player(String, PlayerClass)
     + chooseTrait(): void
     + attack(): int
     + defend(): int
     + getEquipmentHpBonus(): int
     + equipItem(Item): void
     + getEquipmentString(): String
+    - getBaseMana(PlayerClass): int
+    - getBaseManaShield(PlayerClass): int
+    - initializeClassStats(): void
+    - learnClassAbilities(): void
+    - getClassAttackMultiplier(): double
+    - getStatAttackBonus(): int
+
+
 }
 
 class Enemy{
@@ -94,9 +112,29 @@ class Item{
     + {static} createCommonItems(): Item[]
 }
 
+enum PlayerClass{
+    WARRIOR
+    MAGE
+    ROGUE
+    CLERIC
+}
+
+abstract class Ability{
+    # name: String
+    # description: String
+    # manaCost: int
+    + Ability(name, description, manaCost): Ability
+    + execute(Character, Character): int
+    + getName(): String
+    + getDescription(): String
+    + getManaCost(): int
+}
+
 
 Character <|-- Player
 Character <|-- Enemy
+PlayerClass <|-- Player
+Ability <|-- Player
 GameLogic --> Player : manages
 GameLogic --> Enemy : creates
 GameLogic --> Story : calls methods

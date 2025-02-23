@@ -20,10 +20,20 @@ public class Player extends Character{
     private Item accessory;
     public ArrayList<Item> inventory;
 
+    //class specific
+    public PlayerClass playerClass;
+    private int strength;
+    private int intelligence;
+    private int dexterity;
+    private int constitution;
+
     //Player specific constructor
-    public Player(String name){
+    public Player(String name, PlayerClass playerClass) {
         //calling constructor of superclass
-        super(name, 100, 0);
+        super(name, 100, 0, getBaseMana(playerClass), getBaseManaShield(playerClass));
+        this.playerClass = playerClass;
+        initializeClassStats();
+        learnClassAbilities();
 
         //setting # of upgrades to 0
         this.numAtkUpgrades = 0;
@@ -45,10 +55,113 @@ public class Player extends Character{
 
     }
 
+    private static int getBaseMana(PlayerClass playerClass) {
+        switch (playerClass) {
+            case MAGE: return 100;
+            case CLERIC: return 80;
+            case ROGUE: return 60;
+            case WARRIOR: return 40;
+            default: return 50;
+        }
+    }
+
+    private static int getBaseManaShield(PlayerClass playerClass) {
+        switch (playerClass) {
+            case MAGE: return 100;
+            case CLERIC: return 75;
+            case ROGUE: return 60;
+            case WARRIOR: return 25;
+            default: return 50;
+        }
+    }
+
+    private void initializeClassStats(){
+        switch(playerClass){
+            case WARRIOR:
+                strength = 8;
+                intelligence = 2;
+                dexterity = 5;
+                constitution = 7;
+                break;
+            case MAGE:
+                strength = 2;
+                intelligence = 8;
+                dexterity = 4;
+                constitution = 4;
+                break;
+            case ROGUE:
+                strength = 5;
+                intelligence = 3;
+                dexterity = 8;
+                constitution = 4;
+                break;
+            case CLERIC:
+                strength = 4;
+                intelligence = 6;
+                dexterity = 3;
+                constitution = 7;
+                break;
+        }
+    }
+
+    private void learnClassAbilities(){
+        switch(playerClass){
+            case WARRIOR:
+                abilities.add(new Ability("Heroic Strike", "A powerful physical attack", 20) {
+                    @Override
+                    public int execute(Character user, Character target) {
+                        int damage = ((Player)user).strength * 2 + user.attack();
+                        int finalDamage = Math.max(1, damage - target.defend());
+                        target.hp -= finalDamage;
+                        return finalDamage;
+                    }
+                });
+                break;
+            case MAGE:
+                abilities.add(new Ability("Fireball", "Flamming ball of fire", 30) {
+                    @Override
+                    public int execute(Character user, Character target) {
+                        int damage = ((Player)user).intelligence * 3;
+                        target.hp -= damage;
+                        return damage;
+                    }
+                });
+                break;
+            case ROGUE:
+                abilities.add(new Ability("Backstab", "Deals high damage if enemy HP > 50%", 25) {
+                    @Override
+                    public int execute(Character user, Character target) {
+                        int multiplier = target.hp > target.maxHp/2 ? 3 : 1;
+                        int damage = ((Player)user).dexterity * multiplier + user.attack();
+                        int finalDamage = Math.max(1, damage - target.defend());
+                        target.hp -= finalDamage;
+                        return finalDamage;
+                    }
+                });
+                break;
+            case CLERIC:
+                abilities.add(new Ability("Smite", "Holy damage + small heal", 25) {
+                    @Override
+                    public int execute(Character user, Character target) {
+                        int damage = ((Player)user).intelligence + ((Player)user).strength;
+                        user.hp -= Math.min(user.maxHp, user.hp + damage/2);
+                        target.hp -= damage;
+                        return damage;
+                    }
+                });
+                break;
+        }
+    }
+
 
     //Player specific methods
     @Override
     public int attack() {
+        int baseAtk = 5 + (xp/5);
+        double classMultiplier = getClassAttackMultiplier();
+        int statBonus = getStatAttackBonus();
+
+        //equipment bonus
         int equipmentBonus = 0;
         if(weapon != null)
             equipmentBonus += weapon.atkBonus;
@@ -56,7 +169,30 @@ public class Player extends Character{
             equipmentBonus += armor.atkBonus;
         if(accessory != null)
             equipmentBonus += accessory.atkBonus;
-        return (int) (Math.random()*(xp/5 + numAtkUpgrades*2 + 3) + xp/10 + equipmentBonus);
+
+        double randomFactor = 0.9 + (Math.random() * 0.2);
+
+        return (int) ((baseAtk * classMultiplier + statBonus + equipmentBonus) * randomFactor);
+    }
+
+    private double getClassAttackMultiplier(){
+        switch(playerClass){
+            case WARRIOR: return 1.2;
+            case MAGE: return 0.8;
+            case ROGUE: return 1.1;
+            case CLERIC: return 0.9;
+            default: return 1.0;
+        }
+    }
+
+    private int getStatAttackBonus(){
+        switch (playerClass){
+            case WARRIOR: return strength * 2;
+            case MAGE: return intelligence * 2;
+            case ROGUE: return dexterity * 2;
+            case CLERIC: return (strength + intelligence) / 2;
+            default: return 0;
+        }
     }
 
     @Override
