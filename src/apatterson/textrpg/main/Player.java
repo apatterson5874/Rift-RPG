@@ -10,10 +10,6 @@ public class Player extends Character{
     //additional player stats
     int gold, restsLeft, pots;
 
-    //Arrays to store skill names
-    public String[] atkUpgrades = {"Strength", "Power", "Might", "Godlike Strength"};
-    public String[] defUpgrades = {"Heavy Bones", "Stoneskin", "Scale Armor", "Holy Aura"};
-
     //equipment
     private Item weapon;
     private Item armor;
@@ -22,10 +18,10 @@ public class Player extends Character{
 
     //class specific
     public PlayerClass playerClass;
-    private int strength;
-    private int intelligence;
-    private int dexterity;
-    private int constitution;
+    public int strength;
+    public int intelligence;
+    public int dexterity;
+    public int constitution;
 
     //Player specific constructor
     public Player(String name, PlayerClass playerClass) {
@@ -261,22 +257,32 @@ public class Player extends Character{
     //let the player choose a trait of either skill path
     public void chooseTrait(){
         GameLogic.clearConsole();
-        GameLogic.printHeading("Choose a trait:");
-        System.out.println("(1) " + atkUpgrades[numAtkUpgrades]);
-        System.out.println("(2) " + defUpgrades[numDefUpgrades]);
+        GameLogic.printHeading("Choose a stat to upgrade:");
+        System.out.println("(1) Strength - (Current: " + strength + ")");
+        System.out.println("(2) Intelligence - (Current: " + intelligence + ")");
+        System.out.println("(3) Dexterity - (Current: " + dexterity + ")");
+        System.out.println("(4) Constitution - (Current: " + constitution + ")");
+
 
         //get players choice
-        int input = GameLogic.readInt("-> ", 2);
+        int input = GameLogic.readInt("-> ", 4);
         GameLogic.clearConsole();
 
-        //deal with both cases
+        System.out.println("STAT UPGRADED!");
         if(input == 1){
-            GameLogic.printHeading("You chose " + atkUpgrades[numAtkUpgrades]);
-            numAtkUpgrades++;
-        }else{
-            GameLogic.printHeading("You chose " + defUpgrades[numDefUpgrades]);
-            numDefUpgrades++;
+            strength++;
+            System.out.println("Strength is now: " + strength);
+        }else if(input == 2){
+            intelligence++;
+            System.out.println("Intelligence is now: " + intelligence);
+        }else if(input == 3){
+            dexterity++;
+            System.out.println("Dexterity is now: " + dexterity);
+        }else if(input == 4){
+            constitution++;
+            System.out.println("Constitution is now: " + constitution);
         }
+
         GameLogic.anythingToContinue();
     }
 }

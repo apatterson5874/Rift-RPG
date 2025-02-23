@@ -9,7 +9,7 @@ public class GameLogic {
     public static boolean isRunning;
 
     //random encounters
-    public static String[] encounters = {"Battle", "Battle", "Battle", "Battle", "Rest"};
+    public static String[] encounters = {"Battle", "Battle", "Battle", "Battle", "Battle"};
 
     //enemy names
     public static String[] enemies = {"Savage", "Savage", "Corrupted", "Corrupted", "Elemental", "Elemental"};
@@ -170,7 +170,7 @@ public class GameLogic {
             encounters[1] = "Battle";
             encounters[2] = "Battle";
             encounters[3] = "Battle";
-            encounters[4] = "Rest";
+            encounters[4] = "Battle";
             //fully heal player
             player.hp = player.maxHp;
         }else if(player.xp >= 50 && act == 2){
@@ -190,7 +190,7 @@ public class GameLogic {
             encounters[1] = "Battle";
             encounters[2] = "Battle";
             encounters[3] = "Battle";
-            encounters[4] = "Rest";
+            encounters[4] = "Battle";
 
             player.hp = player.maxHp;
         }else if(player.xp >= 100 && act == 3){
@@ -215,8 +215,6 @@ public class GameLogic {
         //calling respective methods
         if(encounters[encounter].equals("Battle")) {
             randomBattle();
-        }else if(encounters[encounter].equals("Rest")) {
-            takeRest();
         }else{
             shop();
         }
@@ -235,7 +233,8 @@ public class GameLogic {
     public static void characterInfo(){
         clearConsole();
         printHeading("CHARACTER INFO");
-        System.out.println(player.name + "\tHP " + player.hp + "/" + player.maxHp);
+        System.out.println(player.name + "\tHP " + player.hp + "/" + player.maxHp + "\tMana Shield " + player.manaShield + "/" + player.maxManaShield +
+                "\nMana " + player.mana + "/" + player.maxMana);
         printSeparator(20);
         //Player xp and gold
         System.out.println("XP: " + player.xp + "\tGold: " + player.gold);
@@ -247,14 +246,15 @@ public class GameLogic {
         //# of pots
         System.out.println("# of Potions: " + player.pots);
         printSeparator(20);
+        System.out.println("CLASS: " + player.playerClass);
+        printSeparator(20);
+        //printing stats
+        System.out.println("Strength: " + player.strength);
+        System.out.println("Intelligence: " + player.intelligence);
+        System.out.println("Dexterity: " + player.dexterity);
+        System.out.println("Constitution: " + player.constitution);
+        printSeparator(20);
 
-        //printing chosen traits
-        if(player.numAtkUpgrades > 0){
-            System.out.println("Offensive trait: " + player.atkUpgrades[player.numAtkUpgrades - 1]);
-        }
-        if(player.numDefUpgrades > 0){
-            System.out.println("Defensive trait: " + player.defUpgrades[player.numAtkUpgrades - 1]);
-        }
 
         anythingToContinue();
     }
@@ -303,7 +303,7 @@ public class GameLogic {
     public static void takeRest(){
         clearConsole();
         if(player.restsLeft >= 1){
-            printHeading("Do you want to take a rest? (" + player.restsLeft + " rest(s) left");
+            printHeading("Do you want to take a rest? (" + player.restsLeft + ") rest(s) left");
             System.out.println("(1) Yes\n(2) No");
             int input = readInt("-> ", 2);
             if(input == 1){
@@ -502,7 +502,8 @@ public class GameLogic {
         System.out.println("(2) Character Info");
         System.out.println("(3) Inventory");
         System.out.println("(4) Shop");
-        System.out.println("(5) Exit Game");
+        System.out.println("(5) Rest");
+        System.out.println("(6) Exit Game");
     }
 
     public static void manageInventory(){
@@ -560,7 +561,7 @@ public class GameLogic {
     public static void gameLoop(){
         while(isRunning){
             printMenu();
-            int input = readInt("-> ", 5);
+            int input = readInt("-> ", 6);
             if(input == 1)
                 continueJourney();
             else if(input == 2)
@@ -569,6 +570,8 @@ public class GameLogic {
                 manageInventory();
             else if (input == 4)
                 shop();
+            else if (input == 5)
+                takeRest();
             else
                 isRunning = false;
         }
