@@ -268,6 +268,7 @@ public class Player extends Character{
         int input = GameLogic.readInt("-> ", 4);
         GameLogic.clearConsole();
 
+        GameLogic.printSeparator(20);
         System.out.println("STAT UPGRADED!");
         if(input == 1){
             strength++;
@@ -283,6 +284,7 @@ public class Player extends Character{
             System.out.println("Constitution is now: " + constitution);
         }
 
+        GameLogic.printSeparator(20);
         GameLogic.anythingToContinue();
     }
 }
